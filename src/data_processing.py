@@ -36,6 +36,7 @@ def filter_tweets_by_hashtag(tweets: pd.DataFrame, hashtag: str) -> pd.DataFrame
         tweets['hashtags'].str.contains(hashtag)
     ]
 
+#%%
 def count_tweets_grouped_by_date(tweets: pd.DataFrame) -> pd.DataFrame:
     '''
     Counts tweets by grouping them by unique dates.
@@ -49,6 +50,7 @@ def count_tweets_grouped_by_date(tweets: pd.DataFrame) -> pd.DataFrame:
         .reset_index())[['date', 'count']]
     return grouped_tweets
 
+#%%
 def count_tweets_by_hashtags(tweets: pd.DataFrame, hashtags: Sequence[str]) -> pd.DataFrame:
     '''
     Counts tweets separately by specified hashtags.
@@ -65,4 +67,5 @@ def count_tweets_by_hashtags(tweets: pd.DataFrame, hashtags: Sequence[str]) -> p
     )
     # there can be NaN's if dataframes don't have exactly the same dates
     .fillna(0)
-    .sort_values('date'))
+    .sort_values('date')
+    .reset_index(drop=True))

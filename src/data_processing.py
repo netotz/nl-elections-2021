@@ -1,5 +1,6 @@
 
-from typing import Sequence
+from datetime import datetime
+from typing import Sequence, Union
 from functools import reduce
 
 import pandas as pd
@@ -20,14 +21,19 @@ def read_csv(filepath: str) -> pd.DataFrame:
     )
     return dataframe
 
-def prepare_tweets_df(tweets: pd.DataFrame) -> pd.DataFrame:
+#%%
+def prepare_tweets_df(tweets: pd.DataFrame, before: Union[datetime, str]) -> pd.DataFrame:
     '''
-    Parses data types of 'date' to datetime and 'hashtags' to str.
+    Parses data types of 'date' to datetime and 'hashtags' to str,
+    and selects data before given date.
     '''
     tweets['date'] = pd.to_datetime(tweets['date'])
     tweets['hashtags'] = tweets['hashtags'].astype(str)
-    return tweets
+    return tweets[
+        tweets['date'] < before
+    ]
 
+#%%
 def filter_tweets_by_hashtag(tweets: pd.DataFrame, hashtag: str) -> pd.DataFrame:
     '''
     Filters tweets that contain a hashtag.

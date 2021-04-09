@@ -1,6 +1,6 @@
 
+from datetime import datetime
 import locale
-from datetime import date, datetime
 
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates

@@ -75,3 +75,14 @@ def count_tweets_by_hashtags(tweets: pd.DataFrame, hashtags: Sequence[str]) -> p
     .fillna(0)
     .sort_values('date')
     .reset_index(drop=True))
+
+#%%
+def sum_likes_grouped_by_date(tweets: pd.DataFrame) -> pd.DataFrame:
+    likes = tweets[['date', 'nlikes']]
+    likes['only_date'] = likes['date'].dt.date
+    likes['sum'] = likes.resample('D', on='date').transform('sum')
+    return likes.drop(columns=['date'])
+
+#%%
+def count_likes_sums_by_date(likes: pd.DataFrame) -> pd.DataFrame:
+    return likes.groupby(['only_date', 'sum']).count().reset_index()

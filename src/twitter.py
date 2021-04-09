@@ -1,5 +1,6 @@
 
 from datetime import datetime
+from typing import Sequence
 
 import twint
 import nest_asyncio
@@ -17,8 +18,7 @@ def configure_common(limit, since) -> twint.Config:
     config.Stats = True
     config.Limit = limit if limit >= 0 else None
     config.Since = str(since.date()) if since else None
-    # config.Location = True
-    # config.Count = True
+    config.Store_csv = True
 
     return config
 
@@ -26,19 +26,25 @@ def configure_tweets_by_candidate(
         candidate: constants.Candidate,
         limit: int = -1,
         since: datetime = None) -> twint.Config:
+    '''
+    Configures scrapper to get tweets made by a candidate.
+    '''
     config = configure_common(limit, since)
     config.Username = candidate.twitter
     config.Filter_retweets = True
 
     return config
 
-def configure_tweets_by_hashtag(
-        hashtag: str,
+def configure_tweets_by_hashtags(
+        hashtags: Sequence[str],
         limit: int = -1,
         since: datetime = None) -> twint.Config:
+    '''
+    Configures scrapper to get tweets that include any of the specified hashtags.
+    '''
     config = configure_common(limit, since)
-    config.Search = hashtag
-    # config.Near = 'monterrey'
+    query = ' OR '.join(hashtags)
+    config.Custom_query = query
 
     return config
 
@@ -46,7 +52,8 @@ def configure_tweets_by_hashtag(
 nest_asyncio.apply()
 
 SINCE = datetime(2021, 3, 5)
-config = configure_tweets_by_hashtag('#ladysecta', since=SINCE)
+HASHTAGS = ('#ladysecta', '#abelguerra')
+config = configure_tweets_by_hashtags(HASHTAGS, since=SINCE)
 twint.run.Search(config)
 
 # save scrapped tweets as dataframe

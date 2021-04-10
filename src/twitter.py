@@ -1,11 +1,13 @@
 
 from datetime import datetime
 from typing import Sequence
+import pandas as pd
 
 import twint
 import nest_asyncio
 
 import constants
+from models.candidate import Candidate
 
 def configure_common(
         limit: int,
@@ -25,7 +27,7 @@ def configure_common(
     )
 
 def configure_tweets_by_candidate(
-        candidate: constants.Candidate,
+        candidate: Candidate,
         limit: int = -1,
         since: datetime = None,
         until: datetime = None) -> twint.Config:
@@ -55,30 +57,32 @@ def configure_tweets_by_hashtags(
 # when using IPython
 nest_asyncio.apply()
 
-# UNTIL = datetime(2021, 4, 9)
-HASHTAGS = (
-    '#ladysecta',
-    '#claraluzmiente',
-    '#claraluzcensura'
-)
-config = configure_tweets_by_hashtags(
-    HASHTAGS,
-    since=constants.CAMPAIGN_START
-)
-twint.run.Search(config)
+#%%
+def get_tweets_by_hashtags(hashtags: Sequence[str], since: datetime, save: bool = False) -> pd.DataFrame:
+    config = configure_tweets_by_hashtags(
+        hashtags,
+        since=since
+    )
+    twint.run.Search(config)
 
-# save scrapped tweets as dataframe
-tweets_hashtags = twint.storage.panda.Tweets_df
-tweets_hashtags.to_csv(f'..\\tweets_{HASHTAGS}.csv')
+    # save scrapped tweets as dataframe
+    tweets_hashtags = twint.storage.panda.Tweets_df
+    if save:
+        tweets_hashtags.to_csv(f'..\\tweets_{hashtags}.csv')
+    return tweets_hashtags
 
-# config = configure_tweets_by_candidate(
-#     constants.CLARA_LUZ,
-#     since=constants.CAMPAIGN_START
-# )
-# twint.run.Search(config)
+#%%
+def get_tweets_by_candidate(candidate: Candidate, since: datetime, save: bool = False) -> pd.DataFrame:
+    config = configure_tweets_by_candidate(
+        candidate,
+        since=since
+    )
+    twint.run.Search(config)
 
-# tweets_candidate = twint.storage.panda.Tweets_df
-# tweets_candidate.to_csv(f'..\\tweets_{constants.CLARA_LUZ.twitter}.csv')
+    tweets_candidate = twint.storage.panda.Tweets_df
+    if save:
+        tweets_candidate.to_csv(f'..\\tweets_{constants.CLARA_LUZ.twitter}.csv')
+    return tweets_candidate
 
 # # get useful columns by inspecting the dataframe
 # columns_indexes = [0, 3, 22, 23, 24]

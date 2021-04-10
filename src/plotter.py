@@ -1,18 +1,16 @@
 
 from datetime import datetime
-import locale
 
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import pandas as pd
 
 import constants
+from culture import set_default, set_spanish
 from data_processing import count_likes_sums_by_date
 
-locale.setlocale(locale.LC_TIME, 'es_MX')
-
 #%%
-def plot_timestamp(timestamp: datetime, label: str, color: str) -> None:
+def _plot_timestamp(timestamp: datetime, label: str, color: str) -> None:
     video_date = timestamp.date()
     plt.axvline(
         video_date,
@@ -24,12 +22,14 @@ def plot_timestamp(timestamp: datetime, label: str, color: str) -> None:
     )
 
 #%%
-def format_date() -> None:
-    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%d-%b'))
+def _format_date() -> None:
+    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%d de %b'))
     plt.gcf().autofmt_xdate()
 
 #%%
 def plot_tweets_per_hashtags(counts: pd.DataFrame) -> None:
+    set_spanish()
+
     fig, ax  = plt.subplots()
     xdates = counts['date']
 
@@ -38,18 +38,22 @@ def plot_tweets_per_hashtags(counts: pd.DataFrame) -> None:
     for hashtag in list(counts.columns[1:]):
         ycount = counts[hashtag]
         ax.plot(xdates, ycount, label=f'#{hashtag}', linewidth=0.8)
-    plot_timestamp(constants.VIDEO_PUBLISHED, 'Video publicado', 'indianred')
+    _plot_timestamp(constants.VIDEO_PUBLISHED, 'Video publicado', 'indianred')
 
     ax.legend()
     
-    format_date()
+    _format_date()
     plt.xlabel('Día')
     plt.ylabel('Tweets')
     plt.title('Cantidad de tweets por hashtag por día')
     plt.show()
 
+    set_default()
+
 #%%
 def plot_likes(tweets: pd.DataFrame) -> None:
+    set_spanish()
+
     xdates = tweets['only_date']
     ylikes = tweets['nlikes']
 
@@ -66,8 +70,8 @@ def plot_likes(tweets: pd.DataFrame) -> None:
     ysum = likes['sum']
     plt.plot(xdates, ysum, label='Likes acumulados', linewidth=0.8)
 
-    plot_timestamp(constants.VIDEO_PUBLISHED, 'Video publicado', 'indianred')
-    format_date()
+    _plot_timestamp(constants.VIDEO_PUBLISHED, 'Video publicado', 'indianred')
+    _format_date()
 
     plt.xlabel('Día')
     plt.ylabel('Likes')
@@ -75,5 +79,4 @@ def plot_likes(tweets: pd.DataFrame) -> None:
     plt.legend()
     plt.show()
 
-
-# %%
+    set_default()

@@ -15,6 +15,7 @@ def read_csv(filepath: str) -> pd.DataFrame:
     }
     dataframe = pd.read_csv(
         filepath,
+        index_col=False,
         usecols=useful_columns,
         parse_dates=['date'],
         dtype=types
@@ -27,8 +28,8 @@ def prepare_tweets_df(tweets: pd.DataFrame, before: Union[datetime, str]) -> pd.
     Parses data types of 'date' to datetime and 'hashtags' to str,
     and selects data before given date.
     '''
-    tweets['date'] = pd.to_datetime(tweets['date'])
-    tweets['hashtags'] = tweets['hashtags'].astype(str)
+    tweets.loc[:, 'date'] = pd.to_datetime(tweets['date'])
+    tweets.loc[:, 'hashtags'] = tweets['hashtags'].astype(str)
     return tweets[
         tweets['date'] < before
     ]
@@ -43,7 +44,7 @@ def filter_tweets_by_hashtag(tweets: pd.DataFrame, hashtag: str) -> pd.DataFrame
     ]
 
 #%%
-def count_tweets_grouped_by_date(tweets: pd.DataFrame) -> pd.DataFrame:
+def count_tweets_by_date(tweets: pd.DataFrame) -> pd.DataFrame:
     '''
     Counts tweets by grouping them by unique dates.
     '''
@@ -64,7 +65,7 @@ def count_tweets_by_hashtags(tweets: pd.DataFrame, hashtags: Sequence[str]) -> p
     return (reduce(
         lambda g1, g2: pd.merge(g1, g2, how='outer'),
         [
-            count_tweets_grouped_by_date(
+            count_tweets_by_date(
                 filter_tweets_by_hashtag(tweets, hashtag)
             # set column name as hashtag
             ).rename(columns={'count': hashtag})
@@ -77,10 +78,10 @@ def count_tweets_by_hashtags(tweets: pd.DataFrame, hashtags: Sequence[str]) -> p
     .reset_index(drop=True))
 
 #%%
-def sum_likes_grouped_by_date(tweets: pd.DataFrame) -> pd.DataFrame:
+def sum_likes_by_date(tweets: pd.DataFrame) -> pd.DataFrame:
     likes = tweets[['date', 'nlikes']]
-    likes['only_date'] = likes['date'].dt.date
-    likes['sum'] = likes.resample('D', on='date').transform('sum')
+    likes.insert(0, 'only_date', likes['date'].dt.date)
+    likes.insert(0, 'sum', likes.resample('D', on='date').transform('sum'))
     return likes.drop(columns=['date'])
 
 #%%

@@ -1,5 +1,8 @@
-# ignore CSV generated files
+# Ignore CSV generated files
 *.csv
+
+# Ignore cookies file
+cookies.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
